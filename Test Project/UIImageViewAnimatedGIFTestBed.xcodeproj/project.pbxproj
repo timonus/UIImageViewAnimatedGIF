@@ -15,6 +15,10 @@
 		22175F6B23B8491C00D1197C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 22175F6923B8491C00D1197C /* LaunchScreen.storyboard */; };
 		22175F6E23B8491C00D1197C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 22175F6D23B8491C00D1197C /* main.m */; };
 		22175F7623B8493D00D1197C /* UIImageView+AnimatedGIF.m in Sources */ = {isa = PBXBuildFile; fileRef = 22175F7523B8493D00D1197C /* UIImageView+AnimatedGIF.m */; };
+		22A8DC2923B95F4300244CA9 /* earth.gif in Resources */ = {isa = PBXBuildFile; fileRef = 22A8DC2523B95F4200244CA9 /* earth.gif */; };
+		22A8DC2A23B95F4300244CA9 /* elmo.gif in Resources */ = {isa = PBXBuildFile; fileRef = 22A8DC2623B95F4200244CA9 /* elmo.gif */; };
+		22A8DC2B23B95F4300244CA9 /* hack.gif in Resources */ = {isa = PBXBuildFile; fileRef = 22A8DC2723B95F4300244CA9 /* hack.gif */; };
+		22A8DC2C23B95F4300244CA9 /* meme.gif in Resources */ = {isa = PBXBuildFile; fileRef = 22A8DC2823B95F4300244CA9 /* meme.gif */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +36,10 @@
 		22175F6D23B8491C00D1197C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		22175F7423B8493D00D1197C /* UIImageView+AnimatedGIF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImageView+AnimatedGIF.h"; path = "../../UIImageView+AnimatedGIF.h"; sourceTree = "<group>"; };
 		22175F7523B8493D00D1197C /* UIImageView+AnimatedGIF.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImageView+AnimatedGIF.m"; path = "../../UIImageView+AnimatedGIF.m"; sourceTree = "<group>"; };
+		22A8DC2523B95F4200244CA9 /* earth.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = earth.gif; sourceTree = "<group>"; };
+		22A8DC2623B95F4200244CA9 /* elmo.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = elmo.gif; sourceTree = "<group>"; };
+		22A8DC2723B95F4300244CA9 /* hack.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = hack.gif; sourceTree = "<group>"; };
+		22A8DC2823B95F4300244CA9 /* meme.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = meme.gif; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,11 +82,23 @@
 				22175F7523B8493D00D1197C /* UIImageView+AnimatedGIF.m */,
 				22175F6423B8491B00D1197C /* Main.storyboard */,
 				22175F6723B8491C00D1197C /* Assets.xcassets */,
+				22A8DC1A23B95F0D00244CA9 /* Animated Images */,
 				22175F6923B8491C00D1197C /* LaunchScreen.storyboard */,
 				22175F6C23B8491C00D1197C /* Info.plist */,
 				22175F6D23B8491C00D1197C /* main.m */,
 			);
 			path = UIImageViewAnimatedGIFTestBed;
+			sourceTree = "<group>";
+		};
+		22A8DC1A23B95F0D00244CA9 /* Animated Images */ = {
+			isa = PBXGroup;
+			children = (
+				22A8DC2523B95F4200244CA9 /* earth.gif */,
+				22A8DC2623B95F4200244CA9 /* elmo.gif */,
+				22A8DC2723B95F4300244CA9 /* hack.gif */,
+				22A8DC2823B95F4300244CA9 /* meme.gif */,
+			);
+			path = "Animated Images";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -139,6 +159,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				22175F6B23B8491C00D1197C /* LaunchScreen.storyboard in Resources */,
+				22A8DC2B23B95F4300244CA9 /* hack.gif in Resources */,
+				22A8DC2C23B95F4300244CA9 /* meme.gif in Resources */,
+				22A8DC2923B95F4300244CA9 /* earth.gif in Resources */,
+				22A8DC2A23B95F4300244CA9 /* elmo.gif in Resources */,
 				22175F6823B8491C00D1197C /* Assets.xcassets in Resources */,
 				22175F6623B8491B00D1197C /* Main.storyboard in Resources */,
 			);
