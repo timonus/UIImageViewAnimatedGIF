@@ -16,9 +16,19 @@
 @property (nonatomic, strong, nullable, readwrite) NSData *data;
 @property (nonatomic, strong, nullable, readwrite) NSURL *url;
 
+@property (nonatomic, assign, readwrite) CGSize size;
+
 @end
 
 @implementation TJAnimatedImage
+
+- (instancetype)init
+{
+    if (self = [super init]) {
+        _size = CGSizeZero;
+    }
+    return self;
+}
 
 + (instancetype)animatedImageWithData:(nullable NSData *const)data
 {
@@ -49,6 +59,28 @@
     return NO;
 }
 
+- (CGSize)size
+{
+    if (CGSizeEqualToSize(_size, CGSizeZero)) {
+        CGImageSourceRef imageSource = nil;
+        if (_data) {
+            imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)_data, nil);
+        } else if (_url) {
+            imageSource = CGImageSourceCreateWithURL((__bridge CFURLRef)_url, nil);
+        }
+        if (imageSource) {
+            if (CGImageSourceGetCount(imageSource) > 0) {
+                NSDictionary *const properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil);
+                const CGFloat width = [properties[(__bridge NSString *)kCGImagePropertyPixelWidth] doubleValue];
+                const CGFloat height = [properties[(__bridge NSString *)kCGImagePropertyPixelHeight] doubleValue];
+                _size = CGSizeMake(width, height);
+            }
+            CFRelease(imageSource);
+        }
+    }
+    return _size;
+}
+
 @end
 
 static const char *kUIImageViewAnimatedGIFAnimatedImageKey = "kUIImageViewAnimatedGIFAnimatedImageKey";
@@ -73,7 +105,9 @@ static const char *kUIImageViewAnimatedGIFAnimatedImageKey = "kUIImageViewAnimat
         void (^updateBlock)(size_t, CGImageRef, bool *) = ^(size_t index, CGImageRef  _Nonnull image, bool * _Nonnull stop) {
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if (strongSelf && [strongSelf.animatedImage isEqual:animatedImage]) {
-                [strongSelf _tj_setImageAnimated:[UIImage imageWithCGImage:image]];
+                UIImage *const loadedImage = [UIImage imageWithCGImage:image];
+                [strongSelf _tj_setImageAnimated:loadedImage];
+                animatedImage.size = loadedImage.size;
             } else {
                 *stop = true;
             }

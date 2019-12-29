@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// Mutually exclusive with @c data.
 @property (nonatomic, strong, nullable, readonly) NSURL *url;
 
+@property (nonatomic, assign, readonly) CGSize size;
+
 @end
 
 @interface UIImageView (AnimatedGIF)
