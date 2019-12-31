@@ -8,7 +8,7 @@ Add the UIImageView+AnimatedGIF.h and UIImageView+AnimatedGIF.m source files to 
 
 ## Usage
 
-Animated images are represented using the `TJAnimatedImage` object, you can create a `TJAnimatedImage` using using data or a file URL as input.
+Animated images are represented using the `TJAnimatedImage` object, you can create a `TJAnimatedImage` using data or a file URL as input.
 
 This library adds a category on `UIImageView` that gives it an `animatedImage` property, setting this to an instance of `TJAnimatedImage` will play the animated image, setting it to `nil` will stop playback.
 
