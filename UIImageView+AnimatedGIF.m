@@ -84,6 +84,13 @@
 @end
 
 static const char *kUIImageViewAnimatedGIFAnimatedImageKey = "kUIImageViewAnimatedGIFAnimatedImageKey";
+static const char *kUIImageViewAnimatedGIFFrameKey = "kUIImageViewAnimatedGIFFrameKey";
+
+@interface UIImageView ()
+
+@property (nonatomic, assign, setter=_tj_setFrame:) size_t _tj_frame;
+
+@end
 
 @implementation UIImageView (AnimatedGIF)
 
@@ -99,27 +106,11 @@ static const char *kUIImageViewAnimatedGIFAnimatedImageKey = "kUIImageViewAnimat
     }
     
     objc_setAssociatedObject(self, kUIImageViewAnimatedGIFAnimatedImageKey, animatedImage, OBJC_ASSOCIATION_RETAIN);
+    self._tj_frame = 0;
     
     if (@available(iOS 13.0, *)) {
-        __weak typeof(self) weakSelf = self;
-        void (^updateBlock)(size_t, CGImageRef, bool *) = ^(size_t index, CGImageRef  _Nonnull image, bool * _Nonnull stop) {
-            __strong typeof(weakSelf) strongSelf = weakSelf;
-            if (strongSelf && [strongSelf.animatedImage isEqual:animatedImage]) {
-                UIImage *const loadedImage = [UIImage imageWithCGImage:image];
-                [strongSelf _tj_setImageAnimated:loadedImage];
-                animatedImage.size = loadedImage.size;
-            } else {
-                *stop = true;
-            }
-        };
-        
         [self _tj_setImageAnimated:nil];
-        
-        if (animatedImage.data) {
-            CGAnimateImageDataWithBlock((__bridge CFDataRef)animatedImage.data, nil, updateBlock);
-        } else if (animatedImage.url) {
-            CGAnimateImageAtURLWithBlock((__bridge CFURLRef)animatedImage.url, nil, updateBlock);
-        }
+        [self _tj_tryBeginPlaybackWithAnimatedImage:animatedImage];
     } else {
         if (animatedImage.data) {
             [self _tj_setImageAnimated:[UIImage imageWithData:animatedImage.data]];
@@ -129,6 +120,51 @@ static const char *kUIImageViewAnimatedGIFAnimatedImageKey = "kUIImageViewAnimat
             [self _tj_setImageAnimated:nil];
         }
     }
+}
+
+- (size_t)_tj_frame
+{
+    return [objc_getAssociatedObject(self, kUIImageViewAnimatedGIFFrameKey) unsignedIntValue];
+}
+
+- (void)_tj_setFrame:(size_t)_tj_frame
+{
+    objc_setAssociatedObject(self, kUIImageViewAnimatedGIFFrameKey, @(_tj_frame), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (void)_tj_tryBeginPlaybackWithAnimatedImage:(TJAnimatedImage *const)animatedImage
+{
+    if (@available(iOS 13.0, *)) {
+        if ([self _tj_isPlaybackEligible]) {
+            __weak typeof(self) weakSelf = self;
+            void (^updateBlock)(size_t, CGImageRef, bool *) = ^(size_t index, CGImageRef  _Nonnull image, bool * _Nonnull stop) {
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+                if (strongSelf && [strongSelf.animatedImage isEqual:animatedImage]) {
+                    if ([self _tj_isPlaybackEligible]) {
+                        strongSelf._tj_frame = index;
+                        UIImage *const loadedImage = [UIImage imageWithCGImage:image];
+                        [strongSelf _tj_setImageAnimated:loadedImage];
+                        animatedImage.size = loadedImage.size;
+                    } else {
+                        *stop = true;
+                    }
+                } else {
+                    *stop = true;
+                }
+            };
+            NSDictionary *const options = @{(__bridge NSString *)kCGImageAnimationStartIndex: @(self._tj_frame)};
+            if (animatedImage.data) {
+                CGAnimateImageDataWithBlock((__bridge CFDataRef)animatedImage.data, (__bridge CFDictionaryRef)options, updateBlock);
+            } else if (animatedImage.url) {
+                CGAnimateImageAtURLWithBlock((__bridge CFURLRef)animatedImage.url, (__bridge CFDictionaryRef)options, updateBlock);
+            }
+        }
+    }
+}
+
+- (BOOL)_tj_isPlaybackEligible
+{
+    return YES;
 }
 
 - (TJAnimatedImage *)animatedImage
@@ -146,9 +182,47 @@ static const char *kUIImageViewAnimatedGIFAnimatedImageKey = "kUIImageViewAnimat
     [super setImage:image];
 }
 
+- (void)setAnimatedImage:(TJAnimatedImage *)animatedImage
+{
+    [super setAnimatedImage:animatedImage];
+    
+    if (animatedImage) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_tj_applicationWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
+    }
+}
+
+- (void)setHidden:(BOOL)hidden
+{
+    TJAnimatedImage *animatedImage;
+    const BOOL shouldResume = self.isHidden && !hidden && (animatedImage = self.animatedImage);
+    
+    [super setHidden:hidden];
+    
+    if (shouldResume) {
+        [self _tj_tryBeginPlaybackWithAnimatedImage:animatedImage];
+    }
+}
+
 - (void)_tj_setImageAnimated:(UIImage *const)image
 {
     [super setImage:image];
+}
+
+- (BOOL)_tj_isPlaybackEligible
+{
+    return self.window && !self.isHidden && [[UIApplication sharedApplication] applicationState] != UIApplicationStateBackground;
+}
+
+- (void)willMoveToWindow:(UIWindow *)newWindow
+{
+    if (!self.window && newWindow) {
+        [self _tj_tryBeginPlaybackWithAnimatedImage:self.animatedImage];
+    }
+}
+
+- (void)_tj_applicationWillEnterForeground:(NSNotification *const)notification
+{
+    [self _tj_tryBeginPlaybackWithAnimatedImage:self.animatedImage];
 }
 
 @end

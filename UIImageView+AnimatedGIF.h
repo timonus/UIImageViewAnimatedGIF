@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// Similar to UIImageView+AnimatedGIF except that @c image and @c animatedImage are mutually exclusive.
 /// Setting @c image will unset @c animatedImage, which is not the case when using a plain @c UIImageView.
 
+// ALSO: This class halts playback when the view has no window, when the view is hidden, and when the app is in the background.
+
 @end
 
 NS_ASSUME_NONNULL_END
