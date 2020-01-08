@@ -140,7 +140,7 @@ static const char *kUIImageViewAnimatedGIFFrameKey = "kUIImageViewAnimatedGIFFra
             void (^updateBlock)(size_t, CGImageRef, bool *) = ^(size_t index, CGImageRef  _Nonnull image, bool * _Nonnull stop) {
                 __strong typeof(weakSelf) strongSelf = weakSelf;
                 if (strongSelf && [strongSelf.animatedImage isEqual:animatedImage]) {
-                    if ([self _tj_isPlaybackEligible]) {
+                    if ([strongSelf _tj_isPlaybackEligible]) {
                         strongSelf._tj_frame = index;
                         UIImage *const loadedImage = [UIImage imageWithCGImage:image];
                         [strongSelf _tj_setImageAnimated:loadedImage];
