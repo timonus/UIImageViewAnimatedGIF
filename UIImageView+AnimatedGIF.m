@@ -141,14 +141,17 @@ static const char *kUIImageViewAnimatedGIFFrameKey = "kUIImageViewAnimatedGIFFra
                 __strong typeof(weakSelf) strongSelf = weakSelf;
                 if (strongSelf && [strongSelf.animatedImage isEqual:animatedImage]) {
                     if ([strongSelf _tj_isPlaybackEligible]) {
+                        NSLog(@"ADVANCE %p", strongSelf);
                         strongSelf._tj_frame = index;
                         UIImage *const loadedImage = [UIImage imageWithCGImage:image];
                         [strongSelf _tj_setImageAnimated:loadedImage];
                         animatedImage.size = loadedImage.size;
                     } else {
+                        NSLog(@"PAUSE");
                         *stop = true;
                     }
                 } else {
+                    NSLog(@"HALT");
                     *stop = true;
                 }
             };
@@ -174,6 +177,13 @@ static const char *kUIImageViewAnimatedGIFFrameKey = "kUIImageViewAnimatedGIFFra
 
 @end
 
+@interface TJAnimatedImageView ()
+
+@property (nonatomic, assign) BOOL _tj_hasWindow;
+@property (nonatomic, assign) BOOL _tj_appIsActive;
+
+@end
+
 @implementation TJAnimatedImageView
 
 - (void)setImage:(UIImage *)image
@@ -187,7 +197,9 @@ static const char *kUIImageViewAnimatedGIFFrameKey = "kUIImageViewAnimatedGIFFra
     [super setAnimatedImage:animatedImage];
     
     if (animatedImage) {
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_tj_applicationWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_tj_applicationDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_tj_applicationDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
+        self._tj_appIsActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
     }
 }
 
@@ -210,19 +222,41 @@ static const char *kUIImageViewAnimatedGIFFrameKey = "kUIImageViewAnimatedGIFFra
 
 - (BOOL)_tj_isPlaybackEligible
 {
-    return self.window && !self.isHidden && [[UIApplication sharedApplication] applicationState] != UIApplicationStateBackground;
+    return self._tj_hasWindow && !self.isHidden && self._tj_appIsActive;
 }
 
 - (void)willMoveToWindow:(UIWindow *)newWindow
 {
-    if (!self.window && newWindow) {
-        [self _tj_tryBeginPlaybackWithAnimatedImage:self.animatedImage];
+    [super willMoveToWindow:newWindow];
+    self._tj_hasWindow = newWindow != nil;
+}
+
+- (void)_tj_applicationDidEnterBackground:(NSNotification *const)notification
+{
+    self._tj_appIsActive = NO;
+}
+
+- (void)_tj_applicationDidBecomeActive:(NSNotification *const)notification
+{
+    self._tj_appIsActive = YES;
+}
+
+- (void)set_tj_hasWindow:(BOOL)_tj_hasWindow
+{
+    if (_tj_hasWindow != __tj_hasWindow) {
+        if ((__tj_hasWindow = _tj_hasWindow)) {
+            [self _tj_tryBeginPlaybackWithAnimatedImage:self.animatedImage];
+        }
     }
 }
 
-- (void)_tj_applicationWillEnterForeground:(NSNotification *const)notification
+- (void)set_tj_appIsActive:(BOOL)_tj_appIsActive
 {
-    [self _tj_tryBeginPlaybackWithAnimatedImage:self.animatedImage];
+    if (_tj_appIsActive != __tj_appIsActive) {
+        if ((__tj_appIsActive = _tj_appIsActive)) {
+            [self _tj_tryBeginPlaybackWithAnimatedImage:self.animatedImage];
+        }
+    }
 }
 
 @end
