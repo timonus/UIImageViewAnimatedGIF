@@ -13,10 +13,10 @@
 
 @interface TJAnimatedImage ()
 
-@property (nonatomic, strong, nullable, readwrite) NSData *data;
-@property (nonatomic, strong, nullable, readwrite) NSURL *url;
+@property (nonatomic, nullable, readwrite) NSData *data;
+@property (nonatomic, nullable, readwrite) NSURL *url;
 
-@property (nonatomic, assign, readwrite) CGSize size;
+@property (nonatomic, readwrite) CGSize size;
 
 @end
 

@@ -16,11 +16,11 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)animatedImageWithURL:(nullable NSURL *const)url;
 
 /// Mutually exclusive with @c url.
-@property (nonatomic, strong, nullable, readonly) NSData *data;
+@property (nonatomic, nullable, readonly) NSData *data;
 /// Mutually exclusive with @c data.
-@property (nonatomic, strong, nullable, readonly) NSURL *url;
+@property (nonatomic, nullable, readonly) NSURL *url;
 
-@property (nonatomic, assign, readonly) CGSize size;
+@property (nonatomic, readonly) CGSize size;
 
 @end
 
@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Allows for playback of animated GIFs from data or URL inputs.
 /// Prior to iOS 13 usage of this method will set a still image instead of an animated one.
-@property (nonatomic, strong, nullable) TJAnimatedImage *animatedImage;
+@property (nonatomic, nullable) TJAnimatedImage *animatedImage;
 
 @end
 
