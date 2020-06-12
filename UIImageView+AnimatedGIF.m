@@ -32,14 +32,14 @@
 
 + (instancetype)animatedImageWithData:(nullable NSData *const)data
 {
-    TJAnimatedImage *const animatedImage = [[TJAnimatedImage alloc] init];
+    TJAnimatedImage *const animatedImage = [TJAnimatedImage new];
     animatedImage.data = data;
     return animatedImage;
 }
 
 + (instancetype)animatedImageWithURL:(nullable NSURL *const)url
 {
-    TJAnimatedImage *const animatedImage = [[TJAnimatedImage alloc] init];
+    TJAnimatedImage *const animatedImage = [TJAnimatedImage new];
     animatedImage.url = url;
     return animatedImage;
 }
