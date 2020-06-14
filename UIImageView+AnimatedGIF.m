@@ -83,7 +83,7 @@
 
 @end
 
-static const char *kUIImageViewAnimatedGIFAnimatedImageKey = "kUIImageViewAnimatedGIFAnimatedImageKey";
+static char *const kUIImageViewAnimatedGIFAnimatedImageKey = "kUIImageViewAnimatedGIFAnimatedImageKey";
 
 @implementation UIImageView (AnimatedGIF)
 
