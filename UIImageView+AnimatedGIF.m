@@ -11,6 +11,9 @@
 #import <ImageIO/CGImageAnimation.h>
 #import <objc/runtime.h>
 
+#if defined(__has_attribute) && __has_attribute(objc_direct_members)
+__attribute__((objc_direct_members))
+#endif
 @interface TJAnimatedImage ()
 
 @property (nonatomic, nullable, readwrite) NSData *data;
@@ -20,6 +23,9 @@
 
 @end
 
+#if defined(__has_attribute) && __has_attribute(objc_direct_members)
+__attribute__((objc_direct_members))
+#endif
 @implementation TJAnimatedImage
 
 - (instancetype)init
@@ -85,6 +91,9 @@
 
 static char *const kUIImageViewAnimatedGIFAnimatedImageKey = "kUIImageViewAnimatedGIFAnimatedImageKey";
 
+#if defined(__has_attribute) && __has_attribute(objc_direct_members)
+__attribute__((objc_direct_members))
+#endif
 @implementation UIImageView (AnimatedGIF)
 
 - (void)_tj_setImageAnimated:(UIImage *const)image
@@ -138,6 +147,9 @@ static char *const kUIImageViewAnimatedGIFAnimatedImageKey = "kUIImageViewAnimat
 
 @end
 
+#if defined(__has_attribute) && __has_attribute(objc_direct_members)
+__attribute__((objc_direct_members))
+#endif
 @implementation TJAnimatedImageView
 
 - (void)setImage:(UIImage *)image
