@@ -52,7 +52,9 @@ imageView.image = /* a still image */;
 // imageView will correctly display the image.
 ```
 
-Another workaround is to use the `TJAnimatedImageView` subclass of `UIImageView`. `TJAnimatedImageView` enforces that setting `image` and `animatedImage` are mutually exclusive.
+Fortunately, this project provides a method to do this automatically. If you call `+tj_configureStillImageAnimatedImageMutualExclusivity` then `UIImageView` will guarantee that its `image` and `animatedImage` are mutually exclusive with no additional work on your part. Note that this method swizzles out `UIImageView`'s implementation of `-setImage:` internally, which may not be desirable in your project.
+
+A different way to work around this without `tj_configureStillImageAnimatedImageMutualExclusivity` is to use the `TJAnimatedImageView` subclass of `UIImageView`. `TJAnimatedImageView` enforces that setting `image` and `animatedImage` are mutually exclusive.
 
 ```objc
 TJAnimatedImageView *animatedImageView = [TJAnimatedImageView new];
