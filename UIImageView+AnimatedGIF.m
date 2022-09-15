@@ -158,9 +158,4 @@ __attribute__((objc_direct_members))
     [super setImage:image];
 }
 
-- (void)_tj_setImageAnimated:(UIImage *const)image
-{
-    [super setImage:image];
-}
-
 @end
