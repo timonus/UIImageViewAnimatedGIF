@@ -26,6 +26,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UIImageView (AnimatedGIF)
 
+/// Makes it so that setting @c image will implicitly unset @c animatedImage without the need for @c TJAnimatedImageView.
+/// Note: Swizzles out @c -setImage: internally.
++ (void)tj_configureStillImageAnimatedImageMutualExclusivity;
+
 /// Allows for playback of animated GIFs from data or URL inputs.
 /// Prior to iOS 13 usage of this method will set a still image instead of an animated one.
 @property (nonatomic, nullable) TJAnimatedImage *animatedImage;

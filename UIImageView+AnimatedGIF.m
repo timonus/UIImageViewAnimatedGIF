@@ -91,14 +91,41 @@ __attribute__((objc_direct_members))
 
 static char *const kUIImageViewAnimatedGIFAnimatedImageKey = "kUIImageViewAnimatedGIFAnimatedImageKey";
 
-#if defined(__has_attribute) && __has_attribute(objc_direct_members)
-__attribute__((objc_direct_members))
-#endif
 @implementation UIImageView (AnimatedGIF)
+
+static BOOL _tj_configuredStillImageAnimatedImageMutualExclusivity;
+
++ (void)tj_configureStillImageAnimatedImageMutualExclusivity
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        Class class = [self class];
+        SEL originalSelector = @selector(setImage:);
+        SEL swizzledSelector = @selector(_setImage:);
+        Method originalMethod = class_getInstanceMethod(class, originalSelector);
+        Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
+        method_exchangeImplementations(originalMethod, swizzledMethod);
+        _tj_configuredStillImageAnimatedImageMutualExclusivity = YES;
+    });
+}
+
+- (void)_setImage:(UIImage *)image
+{
+    if (_tj_configuredStillImageAnimatedImageMutualExclusivity) {
+        self.animatedImage = nil;
+        [self _setImage:image];
+    } else {
+        NSAssert(NO, @"%s is being invoked when %@ hasn't been called", __PRETTY_FUNCTION__, NSStringFromSelector(@selector(tj_configureStillImageAnimatedImageMutualExclusivity)));
+    }
+}
 
 - (void)_tj_setImageAnimated:(UIImage *const)image
 {
-    [self setImage:image];
+    if (_tj_configuredStillImageAnimatedImageMutualExclusivity) {
+        [self _setImage:image];
+    } else {
+        [self setImage:image];
+    }
 }
 
 - (void)setAnimatedImage:(TJAnimatedImage *const)animatedImage
@@ -147,15 +174,24 @@ __attribute__((objc_direct_members))
 
 @end
 
-#if defined(__has_attribute) && __has_attribute(objc_direct_members)
-__attribute__((objc_direct_members))
-#endif
 @implementation TJAnimatedImageView
 
 - (void)setImage:(UIImage *)image
 {
-    self.animatedImage = nil;
+    if (!_tj_configuredStillImageAnimatedImageMutualExclusivity) {
+        // UIImageView handles nil-ing out animatedImage if tj_configureStillImageAnimatedImageMutualExclusivity is called
+        self.animatedImage = nil;
+    }
     [super setImage:image];
+}
+
+- (void)_tj_setImageAnimated:(UIImage *const)image
+{
+    if (_tj_configuredStillImageAnimatedImageMutualExclusivity) {
+        [super _tj_setImageAnimated:image];
+    } else {
+        [super setImage:image];
+    }
 }
 
 @end
