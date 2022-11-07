@@ -21,6 +21,8 @@ __attribute__((objc_direct_members))
 
 @property (nonatomic, readwrite) CGSize size;
 
+@property (nonatomic) NSHashTable<UIImageView *> *imageViews;
+
 @end
 
 #if defined(__has_attribute) && __has_attribute(objc_direct_members)
@@ -130,31 +132,43 @@ static BOOL _tj_configuredStillImageAnimatedImageMutualExclusivity;
 
 - (void)setAnimatedImage:(TJAnimatedImage *const)animatedImage
 {
-    if (self.animatedImage == animatedImage || [self.animatedImage isEqual:animatedImage]) {
+    TJAnimatedImage *const priorAnimatedImage = self.animatedImage;
+    if (priorAnimatedImage == animatedImage || [priorAnimatedImage isEqual:animatedImage]) {
         return;
     }
     
     objc_setAssociatedObject(self, kUIImageViewAnimatedGIFAnimatedImageKey, animatedImage, OBJC_ASSOCIATION_RETAIN);
     
     if (@available(iOS 13.0, *)) {
-        __weak typeof(self) weakSelf = self;
-        void (^updateBlock)(size_t, CGImageRef, bool *) = ^(size_t index, CGImageRef  _Nonnull image, bool * _Nonnull stop) {
-            __strong typeof(weakSelf) strongSelf = weakSelf;
-            if (strongSelf && [strongSelf.animatedImage isEqual:animatedImage]) {
-                UIImage *const loadedImage = [UIImage imageWithCGImage:image];
-                [strongSelf _tj_setImageAnimated:loadedImage];
-                animatedImage.size = loadedImage.size;
-            } else {
+        [priorAnimatedImage.imageViews removeObject:self];
+        BOOL beginPlayback;
+        if (!animatedImage.imageViews) {
+            animatedImage.imageViews = [NSHashTable weakObjectsHashTable];
+            beginPlayback = YES;
+        } else if (!animatedImage.imageViews.count) {
+            beginPlayback = YES;
+        } else {
+            beginPlayback = NO;
+        }
+        [animatedImage.imageViews addObject:self];
+        if (beginPlayback) {
+            void (^updateBlock)(size_t, CGImageRef, bool *) = ^(size_t index, CGImageRef  _Nonnull image, bool * _Nonnull stop) {
                 *stop = true;
+                UIImage *const loadedImage = [UIImage imageWithCGImage:image];
+                for (UIImageView *const imageView in animatedImage.imageViews) {
+                    *stop = false;
+                    [imageView _tj_setImageAnimated:loadedImage];
+                }
+                animatedImage.size = loadedImage.size;
+            };
+            
+            [self _tj_setImageAnimated:nil];
+            
+            if (animatedImage.data) {
+                CGAnimateImageDataWithBlock((__bridge CFDataRef)animatedImage.data, nil, updateBlock);
+            } else if (animatedImage.url) {
+                CGAnimateImageAtURLWithBlock((__bridge CFURLRef)animatedImage.url, nil, updateBlock);
             }
-        };
-        
-        [self _tj_setImageAnimated:nil];
-        
-        if (animatedImage.data) {
-            CGAnimateImageDataWithBlock((__bridge CFDataRef)animatedImage.data, nil, updateBlock);
-        } else if (animatedImage.url) {
-            CGAnimateImageAtURLWithBlock((__bridge CFURLRef)animatedImage.url, nil, updateBlock);
         }
     } else {
         if (animatedImage.data) {
