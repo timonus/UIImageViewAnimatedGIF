@@ -89,8 +89,6 @@ __attribute__((objc_direct_members))
 
 @end
 
-static char *const kUIImageViewAnimatedGIFAnimatedImageKey = "kUIImageViewAnimatedGIFAnimatedImageKey";
-
 @implementation UIImageView (AnimatedGIF)
 
 static BOOL _tj_configuredStillImageAnimatedImageMutualExclusivity;
@@ -134,7 +132,7 @@ static BOOL _tj_configuredStillImageAnimatedImageMutualExclusivity;
         return;
     }
     
-    objc_setAssociatedObject(self, kUIImageViewAnimatedGIFAnimatedImageKey, animatedImage, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(self, @selector(animatedImage), animatedImage, OBJC_ASSOCIATION_RETAIN);
     
     if (@available(iOS 13.0, *)) {
         __weak typeof(self) weakSelf = self;
@@ -169,7 +167,7 @@ static BOOL _tj_configuredStillImageAnimatedImageMutualExclusivity;
 
 - (TJAnimatedImage *)animatedImage
 {
-    return objc_getAssociatedObject(self, kUIImageViewAnimatedGIFAnimatedImageKey);
+    return objc_getAssociatedObject(self, @selector(animatedImage));
 }
 
 @end
